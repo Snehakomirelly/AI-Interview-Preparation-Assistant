@@ -1,0 +1,375 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>InterviewAI – Practice</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --bg: #0a0a0f; --surface: #12121a; --card: #1a1a26; --border: #2a2a3a;
+  --accent: #6c63ff; --accent2: #ff6584; --accent3: #43e97b; --accent4: #f9c74f;
+  --text: #e8e8f0; --muted: #6b6b80; --glow: rgba(108,99,255,0.15);
+}
+body { font-family: 'DM Sans', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; }
+.sidebar { position: fixed; left: 0; top: 0; bottom: 0; width: 240px; background: var(--surface); border-right: 1px solid var(--border); display: flex; flex-direction: column; z-index: 100; padding: 24px 0; }
+.sidebar-brand { display: flex; align-items: center; gap: 10px; padding: 0 24px 24px; border-bottom: 1px solid var(--border); margin-bottom: 16px; }
+.brand-icon { width: 36px; height: 36px; background: linear-gradient(135deg, var(--accent), var(--accent2)); border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 18px; }
+.brand-name { font-family: 'Syne', sans-serif; font-size: 17px; font-weight: 800; }
+.brand-name span { color: var(--accent); }
+.nav-link { display: flex; align-items: center; gap: 12px; padding: 11px 24px; font-size: 14px; font-weight: 500; color: var(--muted); text-decoration: none; transition: all 0.2s; border-left: 3px solid transparent; margin: 2px 0; }
+.nav-link:hover { color: var(--text); background: rgba(108,99,255,0.06); }
+.nav-link.active { color: var(--accent); border-left-color: var(--accent); background: rgba(108,99,255,0.08); }
+.nav-link .icon { font-size: 18px; width: 22px; text-align: center; }
+.sidebar-footer { margin-top: auto; padding: 16px 24px; border-top: 1px solid var(--border); }
+.logout-btn { display: block; font-size: 13px; color: var(--muted); text-decoration: none; padding: 8px 0; transition: color 0.2s; }
+.logout-btn:hover { color: var(--accent2); }
+.main { margin-left: 240px; padding: 36px 40px; min-height: 100vh; display: flex; flex-direction: column; }
+#setupScreen { max-width: 720px; margin: 0 auto; width: 100%; }
+.setup-header { margin-bottom: 40px; }
+.setup-header h1 { font-family: 'Syne', sans-serif; font-size: 32px; font-weight: 800; letter-spacing: -1px; margin-bottom: 8px; }
+.setup-header p { color: var(--muted); font-size: 15px; }
+.setup-card { background: var(--card); border: 1px solid var(--border); border-radius: 20px; padding: 36px; }
+.setup-section { margin-bottom: 32px; }
+.setup-label { font-size: 13px; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 14px; }
+.role-cards { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+.role-card { padding: 16px; background: var(--surface); border: 2px solid var(--border); border-radius: 14px; cursor: pointer; transition: all 0.2s; text-align: center; }
+.role-card:hover { border-color: var(--accent); transform: translateY(-2px); }
+.role-card.selected { border-color: var(--accent); background: rgba(108,99,255,0.08); }
+.role-card .emoji { font-size: 28px; margin-bottom: 8px; }
+.role-card .name { font-size: 13px; font-weight: 600; }
+.role-card .desc { font-size: 11px; color: var(--muted); margin-top: 3px; }
+.diff-cards { display: flex; gap: 12px; }
+.diff-card { flex: 1; padding: 16px; background: var(--surface); border: 2px solid var(--border); border-radius: 14px; cursor: pointer; transition: all 0.2s; text-align: center; }
+.diff-card:hover { transform: translateY(-2px); }
+.diff-card.easy.selected { border-color: var(--accent3); background: rgba(67,233,123,0.08); }
+.diff-card.medium.selected { border-color: var(--accent4); background: rgba(249,199,79,0.08); }
+.diff-card.hard.selected { border-color: var(--accent2); background: rgba(255,101,132,0.08); }
+.diff-card .d-emoji { font-size: 24px; margin-bottom: 6px; }
+.diff-card .d-name { font-size: 14px; font-weight: 600; }
+.diff-card .d-desc { font-size: 11px; color: var(--muted); margin-top: 3px; }
+.num-cards { display: flex; gap: 10px; }
+.num-card { width: 56px; height: 52px; background: var(--surface); border: 2px solid var(--border); border-radius: 12px; cursor: pointer; transition: all 0.2s; display: flex; align-items: center; justify-content: center; font-family: 'Syne', sans-serif; font-weight: 700; font-size: 16px; color: var(--muted); }
+.num-card:hover { border-color: var(--accent); color: var(--text); }
+.num-card.selected { border-color: var(--accent); background: rgba(108,99,255,0.12); color: var(--accent); }
+.btn-begin { width: 100%; padding: 16px; background: linear-gradient(135deg, var(--accent), #8b5cf6); border: none; border-radius: 12px; color: white; font-family: 'Syne', sans-serif; font-size: 17px; font-weight: 800; cursor: pointer; transition: all 0.3s; }
+.btn-begin:hover { transform: translateY(-2px); box-shadow: 0 10px 40px rgba(108,99,255,0.4); }
+.btn-begin:disabled { opacity: 0.4; cursor: not-allowed; transform: none; box-shadow: none; }
+#interviewScreen { display: none; max-width: 860px; margin: 0 auto; width: 100%; }
+.progress-bar-wrap { margin-bottom: 32px; }
+.progress-meta { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+.progress-label { font-family: 'Syne', sans-serif; font-size: 14px; font-weight: 600; }
+.progress-count { font-size: 14px; color: var(--muted); }
+.progress-track { height: 6px; background: var(--surface); border-radius: 99px; overflow: hidden; }
+.progress-fill { height: 100%; background: linear-gradient(90deg, var(--accent), var(--accent2)); border-radius: 99px; transition: width 0.5s ease; }
+.question-card { background: var(--card); border: 1px solid var(--border); border-radius: 20px; padding: 36px; margin-bottom: 20px; position: relative; overflow: hidden; }
+.question-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px; background: linear-gradient(90deg, var(--accent), var(--accent2)); }
+.q-meta { display: flex; align-items: center; gap: 10px; margin-bottom: 20px; }
+.q-num { width: 36px; height: 36px; border-radius: 10px; background: linear-gradient(135deg, var(--accent), var(--accent2)); display: flex; align-items: center; justify-content: center; font-family: 'Syne', sans-serif; font-weight: 800; font-size: 14px; }
+.q-role-badge { padding: 5px 12px; background: var(--surface); border: 1px solid var(--border); border-radius: 99px; font-size: 12px; color: var(--muted); }
+.q-timer { margin-left: auto; font-family: 'Syne', sans-serif; font-size: 18px; font-weight: 700; color: var(--accent4); }
+.q-timer.urgent { color: var(--accent2); animation: pulse 0.5s ease-in-out infinite alternate; }
+@keyframes pulse { from { opacity: 1; } to { opacity: 0.5; } }
+.question-text { font-size: 20px; font-weight: 500; line-height: 1.5; letter-spacing: -0.3px; }
+.answer-area { margin-bottom: 20px; }
+.answer-label { font-size: 13px; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; }
+.word-count { font-size: 12px; color: var(--muted); font-weight: 400; text-transform: none; letter-spacing: 0; }
+textarea { width: 100%; min-height: 160px; background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: 18px; color: var(--text); font-family: 'DM Sans', sans-serif; font-size: 15px; line-height: 1.6; outline: none; resize: vertical; transition: all 0.2s; }
+textarea:focus { border-color: var(--accent); box-shadow: 0 0 0 3px var(--glow); }
+textarea::placeholder { color: #444455; }
+.action-row { display: flex; gap: 12px; }
+.btn-skip { padding: 13px 24px; background: transparent; border: 1px solid var(--border); border-radius: 10px; color: var(--muted); font-family: 'DM Sans', sans-serif; font-size: 14px; cursor: pointer; transition: all 0.2s; }
+.btn-skip:hover { border-color: var(--accent2); color: var(--accent2); }
+.btn-submit { flex: 1; padding: 13px; background: linear-gradient(135deg, var(--accent), #8b5cf6); border: none; border-radius: 10px; color: white; font-family: 'Syne', sans-serif; font-size: 15px; font-weight: 700; cursor: pointer; transition: all 0.3s; }
+.btn-submit:hover { transform: translateY(-2px); box-shadow: 0 6px 24px rgba(108,99,255,0.4); }
+.btn-submit:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+.feedback-card { background: var(--card); border: 1px solid var(--border); border-radius: 20px; padding: 32px; margin-bottom: 20px; display: none; }
+.feedback-header { display: flex; align-items: center; gap: 16px; margin-bottom: 24px; }
+.score-circle { width: 80px; height: 80px; border-radius: 50%; display: flex; flex-direction: column; align-items: center; justify-content: center; font-family: 'Syne', sans-serif; font-weight: 800; font-size: 22px; border: 3px solid; flex-shrink: 0; }
+.rating-badge { padding: 6px 16px; border-radius: 99px; font-size: 13px; font-weight: 600; margin-bottom: 4px; display: inline-block; }
+.feedback-main { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 18px; margin-bottom: 16px; font-size: 14px; line-height: 1.7; color: #aaaacc; }
+.feedback-cols { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 16px; }
+.fb-col { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 16px; }
+.fb-col h4 { font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 10px; }
+.fb-col.strengths h4 { color: var(--accent3); }
+.fb-col.improvements h4 { color: var(--accent2); }
+.fb-item { display: flex; gap: 8px; font-size: 13px; color: #aaaabb; margin-bottom: 6px; line-height: 1.4; }
+.sample-box { background: rgba(108,99,255,0.06); border: 1px solid rgba(108,99,255,0.2); border-radius: 12px; padding: 16px; margin-bottom: 16px; }
+.sample-box h4 { font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 1px; color: var(--accent); margin-bottom: 10px; }
+.sample-box p { font-size: 13px; color: #aaaacc; line-height: 1.6; }
+.btn-next { width: 100%; padding: 14px; background: linear-gradient(135deg, var(--accent3), #06d6a0); border: none; border-radius: 10px; color: #0a0a0f; font-family: 'Syne', sans-serif; font-size: 15px; font-weight: 800; cursor: pointer; transition: all 0.3s; }
+.btn-next:hover { transform: translateY(-2px); box-shadow: 0 6px 24px rgba(67,233,123,0.4); }
+#resultsScreen { display: none; max-width: 720px; margin: 0 auto; width: 100%; text-align: center; }
+.results-card { background: var(--card); border: 1px solid var(--border); border-radius: 24px; padding: 48px; }
+.result-trophy { font-size: 64px; margin-bottom: 16px; }
+.result-score { font-family: 'Syne', sans-serif; font-size: 72px; font-weight: 800; letter-spacing: -3px; margin-bottom: 4px; }
+.result-label { font-size: 16px; color: var(--muted); margin-bottom: 32px; }
+.result-stats { display: flex; justify-content: center; gap: 40px; margin-bottom: 40px; }
+.result-stat .val { font-family: 'Syne', sans-serif; font-size: 28px; font-weight: 700; margin-bottom: 4px; }
+.result-stat .lbl { font-size: 12px; color: var(--muted); text-transform: uppercase; letter-spacing: 1px; }
+.result-msg { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: 20px; margin-bottom: 32px; font-size: 15px; color: var(--muted); line-height: 1.6; }
+.result-actions { display: flex; gap: 14px; }
+.btn-retry { flex: 1; padding: 14px; background: transparent; border: 1px solid var(--border); border-radius: 12px; color: var(--text); font-family: 'Syne', sans-serif; font-size: 15px; font-weight: 700; cursor: pointer; transition: all 0.2s; }
+.btn-retry:hover { border-color: var(--accent); color: var(--accent); }
+.btn-dashboard { flex: 1; padding: 14px; background: linear-gradient(135deg, var(--accent), #8b5cf6); border: none; border-radius: 12px; color: white; font-family: 'Syne', sans-serif; font-size: 15px; font-weight: 700; cursor: pointer; transition: all 0.3s; }
+.btn-dashboard:hover { transform: translateY(-2px); box-shadow: 0 8px 30px rgba(108,99,255,0.4); }
+.btn-report { width: 100%; padding: 12px; background: rgba(67,233,123,0.1); border: 1px solid rgba(67,233,123,0.3); border-radius: 12px; color: var(--accent3); font-family: 'DM Sans', sans-serif; font-size: 14px; font-weight: 600; cursor: pointer; transition: all 0.2s; margin-bottom: 14px; }
+.loading-overlay { position: fixed; inset: 0; background: rgba(10,10,15,0.8); z-index: 999; display: none; align-items: center; justify-content: center; flex-direction: column; gap: 16px; backdrop-filter: blur(4px); }
+.loading-overlay.show { display: flex; }
+.spinner { width: 44px; height: 44px; border: 3px solid var(--border); border-top-color: var(--accent); border-radius: 50%; animation: spin 0.8s linear infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }
+.loading-text { font-family: 'Syne', sans-serif; font-size: 15px; color: var(--muted); }
+@media (max-width: 768px) { .sidebar { display: none; } .main { margin-left: 0; padding: 24px 16px; } .role-cards { grid-template-columns: repeat(2,1fr); } .feedback-cols { grid-template-columns: 1fr; } .result-actions { flex-direction: column; } }
+</style>
+</head>
+<body>
+<aside class="sidebar">
+  <div class="sidebar-brand">
+    <div class="brand-icon">🎯</div>
+    <div class="brand-name">Interview<span>AI</span></div>
+  </div>
+  <a href="/dashboard" class="nav-link"><span class="icon">🏠</span> Dashboard</a>
+  <a href="/interview" class="nav-link active"><span class="icon">🎤</span> Start Interview</a>
+  <div class="sidebar-footer">
+    <a href="/logout" class="logout-btn">← Sign out</a>
+  </div>
+</aside>
+<main class="main">
+  <!-- SETUP SCREEN -->
+  <div id="setupScreen">
+    <div class="setup-header">
+      <h1>🎤 Interview Setup</h1>
+      <p>Configure your practice session and let's get started.</p>
+    </div>
+    <div class="setup-card">
+      <div class="setup-section">
+        <div class="setup-label">① Select Job Role</div>
+        <div class="role-cards">
+          <div class="role-card" onclick="selectRole(this,'Software Developer')"><div class="emoji">💻</div><div class="name">Software Developer</div><div class="desc">Coding, Systems, Architecture</div></div>
+          <div class="role-card" onclick="selectRole(this,'Data Analyst')"><div class="emoji">📊</div><div class="name">Data Analyst</div><div class="desc">SQL, Statistics, Insights</div></div>
+          <div class="role-card" onclick="selectRole(this,'Product Manager')"><div class="emoji">🗂️</div><div class="name">Product Manager</div><div class="desc">Strategy, Roadmap, Users</div></div>
+          <div class="role-card" onclick="selectRole(this,'UI/UX Designer')"><div class="emoji">🎨</div><div class="name">UI/UX Designer</div><div class="desc">Design, Research, Usability</div></div>
+          <div class="role-card" onclick="selectRole(this,'Machine Learning Engineer')"><div class="emoji">🤖</div><div class="name">ML Engineer</div><div class="desc">Models, Training, AI Systems</div></div>
+          <div class="role-card" style="opacity:0.4;cursor:not-allowed;"><div class="emoji">➕</div><div class="name">More Coming</div><div class="desc">DevOps, QA, Security…</div></div>
+        </div>
+      </div>
+      <div class="setup-section">
+        <div class="setup-label">② Choose Difficulty</div>
+        <div class="diff-cards">
+          <div class="diff-card easy" onclick="selectDiff(this,'Easy')"><div class="d-emoji">🟢</div><div class="d-name">Easy</div><div class="d-desc">Fundamentals & concepts</div></div>
+          <div class="diff-card medium" onclick="selectDiff(this,'Medium')"><div class="d-emoji">🟡</div><div class="d-name">Medium</div><div class="d-desc">Applied & situational</div></div>
+          <div class="diff-card hard" onclick="selectDiff(this,'Hard')"><div class="d-emoji">🔴</div><div class="d-name">Hard</div><div class="d-desc">System design & leadership</div></div>
+        </div>
+      </div>
+      <div class="setup-section" style="margin-bottom:28px;">
+        <div class="setup-label">③ Number of Questions</div>
+        <div class="num-cards">
+          <div class="num-card" onclick="selectNum(this,3)">3</div>
+          <div class="num-card selected" onclick="selectNum(this,5)">5</div>
+          <div class="num-card" onclick="selectNum(this,7)">7</div>
+          <div class="num-card" onclick="selectNum(this,10)">10</div>
+        </div>
+      </div>
+      <button class="btn-begin" id="beginBtn" onclick="beginInterview()" disabled>Select a Role & Difficulty to Begin →</button>
+    </div>
+  </div>
+
+  <!-- INTERVIEW SCREEN -->
+  <div id="interviewScreen">
+    <div class="progress-bar-wrap">
+      <div class="progress-meta">
+        <div class="progress-label" id="progressLabel">Question 1 of 5</div>
+        <div class="progress-count" id="sessionInfo"></div>
+      </div>
+      <div class="progress-track"><div class="progress-fill" id="progressFill" style="width:0%"></div></div>
+    </div>
+    <div class="question-card">
+      <div class="q-meta">
+        <div class="q-num" id="qNum">1</div>
+        <div class="q-role-badge" id="qRole">Role</div>
+        <div class="q-timer" id="timer">⏱ 2:00</div>
+      </div>
+      <div class="question-text" id="questionText">Loading...</div>
+    </div>
+    <div class="answer-area" id="answerArea">
+      <div class="answer-label">Your Answer <span class="word-count" id="wordCount">0 words</span></div>
+      <textarea id="answerInput" placeholder="Type your answer here… Structure it clearly, use examples, and explain your reasoning. Aim for 80–150 words." oninput="updateWordCount()"></textarea>
+      <div class="action-row" style="margin-top:12px;">
+        <button class="btn-skip" onclick="skipQuestion()">Skip →</button>
+        <button class="btn-submit" onclick="submitAnswer()" id="submitBtn">Submit Answer ✓</button>
+      </div>
+    </div>
+    <div class="feedback-card" id="feedbackCard">
+      <div class="feedback-header">
+        <div class="score-circle" id="scoreCircle"><span id="scoreVal">0</span></div>
+        <div><span class="rating-badge" id="ratingBadge">Good</span><div style="font-size:13px;color:var(--muted)">AI Evaluation Complete</div></div>
+      </div>
+      <div class="feedback-main" id="feedbackText"></div>
+      <div class="feedback-cols">
+        <div class="fb-col strengths"><h4>✅ Strengths</h4><div id="strengthsList"></div></div>
+        <div class="fb-col improvements"><h4>📈 Improve</h4><div id="improvementsList"></div></div>
+      </div>
+      <div class="sample-box"><h4>💡 Sample Strong Answer</h4><p id="sampleAnswer"></p></div>
+      <button class="btn-next" id="nextBtn" onclick="nextQuestion()">Next Question →</button>
+    </div>
+  </div>
+
+  <!-- RESULTS SCREEN -->
+  <div id="resultsScreen">
+    <div class="results-card">
+      <div class="result-trophy" id="resultTrophy">🏆</div>
+      <div class="result-score" id="resultScore">0</div>
+      <div class="result-label">Overall Score</div>
+      <div class="result-stats">
+        <div class="result-stat"><div class="val" id="resQuestions">0</div><div class="lbl">Questions</div></div>
+        <div class="result-stat"><div class="val" id="resRole">—</div><div class="lbl">Role</div></div>
+        <div class="result-stat"><div class="val" id="resDiff">—</div><div class="lbl">Difficulty</div></div>
+      </div>
+      <div class="result-msg" id="resultMsg"></div>
+      <button class="btn-report" onclick="downloadReport()">⬇ Download Full Report (.txt)</button>
+      <div class="result-actions">
+        <button class="btn-retry" onclick="retryInterview()">🔄 Practice Again</button>
+        <button class="btn-dashboard" onclick="window.location.href='/dashboard'">📊 View Dashboard</button>
+      </div>
+    </div>
+  </div>
+</main>
+
+<div class="loading-overlay" id="loadingOverlay">
+  <div class="spinner"></div>
+  <div class="loading-text" id="loadingText">Loading…</div>
+</div>
+
+<script>
+let selectedRole = '', selectedDiff = '', selectedNum = 5;
+let sessionId = null, questions = [], currentQ = 0, scores = [];
+let timerInterval = null, timeLeft = 120;
+let completedSessionId = null;
+
+window.addEventListener('load', () => {
+  const r = sessionStorage.getItem('role');
+  const d = sessionStorage.getItem('diff');
+  const n = sessionStorage.getItem('num');
+  if (r) { const btn = [...document.querySelectorAll('.role-card')].find(b => b.querySelector('.name')?.textContent.includes(r.split(' ')[0])); if (btn) selectRole(btn, r); }
+  if (d) { const btn = [...document.querySelectorAll('.diff-card')].find(b => b.querySelector('.d-name')?.textContent === d); if (btn) selectDiff(btn, d); }
+  if (n) { const btn = [...document.querySelectorAll('.num-card')].find(b => b.textContent.trim() === n); if (btn) selectNum(btn, parseInt(n)); }
+  sessionStorage.clear();
+});
+
+function selectRole(el, role) { document.querySelectorAll('.role-card').forEach(b => b.classList.remove('selected')); el.classList.add('selected'); selectedRole = role; updateBeginBtn(); }
+function selectDiff(el, diff) { document.querySelectorAll('.diff-card').forEach(b => b.classList.remove('selected')); el.classList.add('selected'); selectedDiff = diff; updateBeginBtn(); }
+function selectNum(el, n) { document.querySelectorAll('.num-card').forEach(b => b.classList.remove('selected')); el.classList.add('selected'); selectedNum = n; }
+function updateBeginBtn() {
+  const btn = document.getElementById('beginBtn');
+  if (selectedRole && selectedDiff) { btn.disabled = false; btn.textContent = `Start ${selectedDiff} ${selectedRole} Interview →`; }
+  else { btn.disabled = true; btn.textContent = 'Select a Role & Difficulty to Begin →'; }
+}
+
+async function beginInterview() {
+  showLoading('Generating your questions…');
+  try {
+    const res = await fetch('/api/start_session', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ job_role: selectedRole, difficulty: selectedDiff, num_questions: selectedNum }) });
+    const data = await res.json();
+    sessionId = data.session_id; questions = data.questions; currentQ = 0; scores = [];
+    hideLoading();
+    document.getElementById('setupScreen').style.display = 'none';
+    document.getElementById('interviewScreen').style.display = 'block';
+    loadQuestion();
+  } catch(e) { hideLoading(); alert('Failed to start session. Make sure the server is running!'); }
+}
+
+function loadQuestion() {
+  if (currentQ >= questions.length) { showResults(); return; }
+  document.getElementById('feedbackCard').style.display = 'none';
+  document.getElementById('answerArea').style.display = 'block';
+  document.getElementById('answerInput').value = '';
+  document.getElementById('wordCount').textContent = '0 words';
+  document.getElementById('submitBtn').disabled = false;
+  document.getElementById('questionText').textContent = questions[currentQ];
+  document.getElementById('qNum').textContent = currentQ + 1;
+  document.getElementById('qRole').textContent = selectedRole;
+  document.getElementById('progressLabel').textContent = `Question ${currentQ + 1} of ${questions.length}`;
+  document.getElementById('sessionInfo').textContent = `${selectedDiff} · ${selectedRole}`;
+  document.getElementById('progressFill').style.width = `${(currentQ / questions.length) * 100}%`;
+  startTimer();
+  document.getElementById('answerInput').focus();
+}
+
+function startTimer() {
+  clearInterval(timerInterval); timeLeft = 120; updateTimerDisplay();
+  timerInterval = setInterval(() => { timeLeft--; updateTimerDisplay(); if (timeLeft <= 0) { clearInterval(timerInterval); autoSubmit(); } }, 1000);
+}
+function updateTimerDisplay() {
+  const m = Math.floor(timeLeft / 60); const s = timeLeft % 60;
+  const el = document.getElementById('timer');
+  el.textContent = `⏱ ${m}:${s.toString().padStart(2,'0')}`;
+  el.className = timeLeft <= 30 ? 'q-timer urgent' : 'q-timer';
+}
+function autoSubmit() { if (!document.getElementById('answerInput').value.trim()) document.getElementById('answerInput').value = '[No answer — time ran out]'; submitAnswer(); }
+function updateWordCount() { const words = document.getElementById('answerInput').value.trim().split(/\s+/).filter(Boolean).length; document.getElementById('wordCount').textContent = `${words} word${words !== 1 ? 's' : ''}`; }
+
+async function submitAnswer() {
+  clearInterval(timerInterval);
+  const answer = document.getElementById('answerInput').value.trim();
+  document.getElementById('submitBtn').disabled = true;
+  showLoading('Evaluating your answer…');
+  try {
+    const res = await fetch('/api/submit_answer', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ session_id: sessionId, question: questions[currentQ], answer: answer }) });
+    const data = await res.json();
+    scores.push(data.score); hideLoading(); showFeedback(data);
+  } catch(e) { hideLoading(); scores.push(0); nextQuestion(); }
+}
+
+function skipQuestion() { clearInterval(timerInterval); scores.push(0); currentQ++; loadQuestion(); }
+
+function showFeedback(data) {
+  document.getElementById('answerArea').style.display = 'none';
+  document.getElementById('feedbackCard').style.display = 'block';
+  const score = data.score;
+  const color = score >= 70 ? 'var(--accent3)' : score >= 50 ? 'var(--accent4)' : 'var(--accent2)';
+  const sc = document.getElementById('scoreCircle');
+  sc.style.borderColor = color; sc.style.color = color;
+  sc.style.background = score >= 70 ? 'rgba(67,233,123,0.1)' : score >= 50 ? 'rgba(249,199,79,0.1)' : 'rgba(255,101,132,0.1)';
+  document.getElementById('scoreVal').textContent = Math.round(score);
+  const rb = document.getElementById('ratingBadge');
+  rb.textContent = data.rating;
+  rb.style.background = score >= 70 ? 'rgba(67,233,123,0.15)' : score >= 50 ? 'rgba(249,199,79,0.15)' : 'rgba(255,101,132,0.15)';
+  rb.style.color = color;
+  document.getElementById('feedbackText').textContent = data.feedback;
+  document.getElementById('strengthsList').innerHTML = (data.strengths || []).map(s => `<div class="fb-item"><span>✓</span><span>${s}</span></div>`).join('');
+  document.getElementById('improvementsList').innerHTML = (data.improvements || []).map(i => `<div class="fb-item"><span>→</span><span>${i}</span></div>`).join('');
+  document.getElementById('sampleAnswer').textContent = data.sample_answer || '';
+  document.getElementById('nextBtn').textContent = currentQ + 1 >= questions.length ? '🏁 See Results' : 'Next Question →';
+}
+
+function nextQuestion() { currentQ++; loadQuestion(); }
+
+async function showResults() {
+  showLoading('Calculating your final score…');
+  try {
+    const res = await fetch('/api/complete_session', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ session_id: sessionId }) });
+    const data = await res.json();
+    completedSessionId = sessionId;
+    hideLoading();
+    const finalScore = Math.round(data.final_score || 0);
+    document.getElementById('interviewScreen').style.display = 'none';
+    document.getElementById('resultsScreen').style.display = 'block';
+    document.getElementById('resultScore').textContent = finalScore;
+    document.getElementById('resQuestions').textContent = questions.length;
+    document.getElementById('resRole').textContent = selectedRole.split(' ')[0];
+    document.getElementById('resDiff').textContent = selectedDiff;
+    const color = finalScore >= 70 ? 'var(--accent3)' : finalScore >= 50 ? 'var(--accent4)' : 'var(--accent2)';
+    document.getElementById('resultScore').style.color = color;
+    document.getElementById('resultTrophy').textContent = finalScore >= 85 ? '🏆' : finalScore >= 70 ? '🥈' : finalScore >= 55 ? '🥉' : '💪';
+    document.getElementById('resultMsg').textContent = finalScore >= 70 ? "Outstanding performance! You're well-prepared for real interviews." : finalScore >= 50 ? "Good job! Focus on adding more specific examples and deepening your technical explanations." : "You're on the right track. Review the feedback above, study the concepts, and practice again!";
+  } catch(e) { hideLoading(); window.location.href = '/dashboard'; }
+}
+
+function downloadReport() { if (completedSessionId) window.open(`/api/download_report/${completedSessionId}`, '_blank'); }
+function retryInterview() { currentQ = 0; scores = []; sessionId = null; questions = []; document.getElementById('resultsScreen').style.display = 'none'; document.getElementById('setupScreen').style.display = 'block'; }
+function showLoading(text) { document.getElementById('loadingText').textContent = text; document.getElementById('loadingOverlay').classList.add('show'); }
+function hideLoading() { document.getElementById('loadingOverlay').classList.remove('show'); }
+</script>
+</body>
+</html>

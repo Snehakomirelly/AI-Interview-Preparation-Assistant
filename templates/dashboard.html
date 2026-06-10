@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>InterviewAI – Dashboard</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --bg: #0a0a0f; --surface: #12121a; --card: #1a1a26; --border: #2a2a3a;
+  --accent: #6c63ff; --accent2: #ff6584; --accent3: #43e97b; --accent4: #f9c74f;
+  --text: #e8e8f0; --muted: #6b6b80; --glow: rgba(108,99,255,0.15);
+}
+body { font-family: 'DM Sans', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; }
+.sidebar { position: fixed; left: 0; top: 0; bottom: 0; width: 240px; background: var(--surface); border-right: 1px solid var(--border); display: flex; flex-direction: column; z-index: 100; padding: 24px 0; }
+.sidebar-brand { display: flex; align-items: center; gap: 10px; padding: 0 24px 24px; border-bottom: 1px solid var(--border); margin-bottom: 16px; }
+.brand-icon { width: 36px; height: 36px; background: linear-gradient(135deg, var(--accent), var(--accent2)); border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 18px; }
+.brand-name { font-family: 'Syne', sans-serif; font-size: 17px; font-weight: 800; }
+.brand-name span { color: var(--accent); }
+.nav-link { display: flex; align-items: center; gap: 12px; padding: 11px 24px; font-size: 14px; font-weight: 500; color: var(--muted); text-decoration: none; transition: all 0.2s; border-left: 3px solid transparent; margin: 2px 0; }
+.nav-link:hover { color: var(--text); background: rgba(108,99,255,0.06); }
+.nav-link.active { color: var(--accent); border-left-color: var(--accent); background: rgba(108,99,255,0.08); }
+.nav-link .icon { font-size: 18px; width: 22px; text-align: center; }
+.sidebar-footer { margin-top: auto; padding: 16px 24px; border-top: 1px solid var(--border); }
+.user-info { display: flex; align-items: center; gap: 10px; }
+.user-avatar { width: 34px; height: 34px; border-radius: 50%; background: linear-gradient(135deg, var(--accent), var(--accent2)); display: flex; align-items: center; justify-content: center; font-family: 'Syne', sans-serif; font-weight: 700; font-size: 13px; }
+.user-name { font-size: 13px; font-weight: 500; }
+.user-role { font-size: 11px; color: var(--muted); }
+.logout-btn { display: block; margin-top: 12px; font-size: 13px; color: var(--muted); text-decoration: none; padding: 8px 0; transition: color 0.2s; }
+.logout-btn:hover { color: var(--accent2); }
+.main { margin-left: 240px; padding: 36px 40px; min-height: 100vh; }
+.page-header { margin-bottom: 32px; }
+.page-header h1 { font-family: 'Syne', sans-serif; font-size: 28px; font-weight: 800; letter-spacing: -0.8px; margin-bottom: 6px; }
+.page-header p { color: var(--muted); font-size: 15px; }
+.time-greeting { color: var(--accent); }
+.stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; margin-bottom: 32px; }
+.stat-card { background: var(--card); border: 1px solid var(--border); border-radius: 16px; padding: 24px; position: relative; overflow: hidden; transition: transform 0.2s, border-color 0.2s; }
+.stat-card:hover { transform: translateY(-2px); border-color: var(--accent); }
+.stat-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px; }
+.stat-card:nth-child(1)::before { background: linear-gradient(90deg, var(--accent), var(--accent2)); }
+.stat-card:nth-child(2)::before { background: linear-gradient(90deg, var(--accent3), #06d6a0); }
+.stat-card:nth-child(3)::before { background: linear-gradient(90deg, var(--accent4), #f3722c); }
+.stat-card:nth-child(4)::before { background: linear-gradient(90deg, var(--accent2), #f72585); }
+.stat-icon { font-size: 28px; margin-bottom: 12px; }
+.stat-value { font-family: 'Syne', sans-serif; font-size: 32px; font-weight: 800; letter-spacing: -1px; margin-bottom: 4px; }
+.stat-label { font-size: 13px; color: var(--muted); }
+.two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-bottom: 32px; }
+.section-title { font-family: 'Syne', sans-serif; font-size: 16px; font-weight: 700; margin-bottom: 16px; display: flex; align-items: center; gap: 8px; }
+.section-title .badge { font-size: 11px; background: var(--accent); color: white; border-radius: 99px; padding: 2px 8px; font-family: 'DM Sans', sans-serif; }
+.start-card { background: var(--card); border: 1px solid var(--border); border-radius: 16px; padding: 28px; }
+.role-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 16px; }
+.role-btn { padding: 10px 12px; background: var(--surface); border: 1px solid var(--border); border-radius: 10px; color: var(--text); font-family: 'DM Sans', sans-serif; font-size: 13px; cursor: pointer; transition: all 0.2s; text-align: left; display: flex; align-items: center; gap: 8px; }
+.role-btn:hover { border-color: var(--accent); background: rgba(108,99,255,0.06); }
+.role-btn.selected { border-color: var(--accent); background: rgba(108,99,255,0.12); color: var(--accent); }
+.diff-row { display: flex; gap: 10px; margin-bottom: 20px; }
+.diff-btn { flex: 1; padding: 10px; background: var(--surface); border: 1px solid var(--border); border-radius: 10px; color: var(--muted); font-family: 'DM Sans', sans-serif; font-size: 13px; cursor: pointer; transition: all 0.2s; text-align: center; }
+.diff-btn.selected { border-color: var(--accent); background: rgba(108,99,255,0.12); color: var(--accent); }
+.diff-btn.easy.selected { border-color: var(--accent3); background: rgba(67,233,123,0.1); color: var(--accent3); }
+.diff-btn.medium.selected { border-color: var(--accent4); background: rgba(249,199,79,0.1); color: var(--accent4); }
+.diff-btn.hard.selected { border-color: var(--accent2); background: rgba(255,101,132,0.1); color: var(--accent2); }
+.num-label { font-size: 13px; color: var(--muted); margin-bottom: 8px; }
+.num-row { display: flex; gap: 8px; margin-bottom: 20px; }
+.num-btn { width: 40px; height: 36px; background: var(--surface); border: 1px solid var(--border); border-radius: 8px; color: var(--muted); font-family: 'DM Sans', sans-serif; font-size: 14px; cursor: pointer; transition: all 0.2s; }
+.num-btn.selected { border-color: var(--accent); background: rgba(108,99,255,0.12); color: var(--accent); }
+.btn-start { width: 100%; padding: 14px; background: linear-gradient(135deg, var(--accent), #8b5cf6); border: none; border-radius: 10px; color: white; font-family: 'Syne', sans-serif; font-size: 15px; font-weight: 700; cursor: pointer; transition: all 0.3s; }
+.btn-start:hover { transform: translateY(-2px); box-shadow: 0 8px 30px rgba(108,99,255,0.4); }
+.history-card { background: var(--card); border: 1px solid var(--border); border-radius: 16px; padding: 28px; }
+.history-list { display: flex; flex-direction: column; gap: 10px; }
+.history-item { display: flex; align-items: center; gap: 14px; padding: 14px 16px; background: var(--surface); border: 1px solid var(--border); border-radius: 12px; cursor: pointer; transition: all 0.2s; }
+.history-item:hover { border-color: var(--accent); background: rgba(108,99,255,0.04); }
+.history-score { width: 48px; height: 48px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-family: 'Syne', sans-serif; font-weight: 800; font-size: 15px; flex-shrink: 0; }
+.score-high { background: rgba(67,233,123,0.15); color: var(--accent3); }
+.score-mid { background: rgba(249,199,79,0.15); color: var(--accent4); }
+.score-low { background: rgba(255,101,132,0.15); color: var(--accent2); }
+.history-info { flex: 1; }
+.history-role { font-size: 14px; font-weight: 500; margin-bottom: 2px; }
+.history-meta { font-size: 12px; color: var(--muted); }
+.diff-tag { display: inline-block; padding: 2px 8px; border-radius: 99px; font-size: 11px; font-weight: 500; }
+.diff-easy { background: rgba(67,233,123,0.1); color: var(--accent3); }
+.diff-medium { background: rgba(249,199,79,0.1); color: var(--accent4); }
+.diff-hard { background: rgba(255,101,132,0.1); color: var(--accent2); }
+.empty-state { text-align: center; padding: 40px 20px; color: var(--muted); }
+.empty-state .emoji { font-size: 40px; margin-bottom: 12px; }
+.tips-card { background: var(--card); border: 1px solid var(--border); border-radius: 16px; padding: 28px; }
+.tip-item { display: flex; gap: 14px; padding: 14px 0; border-bottom: 1px solid var(--border); }
+.tip-item:last-child { border-bottom: none; padding-bottom: 0; }
+.tip-icon { font-size: 24px; flex-shrink: 0; }
+.tip-content h4 { font-size: 14px; font-weight: 600; margin-bottom: 4px; }
+.tip-content p { font-size: 13px; color: var(--muted); line-height: 1.5; }
+.modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.7); z-index: 1000; display: none; align-items: center; justify-content: center; backdrop-filter: blur(4px); }
+.modal-overlay.open { display: flex; }
+.modal { background: var(--card); border: 1px solid var(--border); border-radius: 20px; padding: 32px; max-width: 680px; width: 90%; max-height: 80vh; overflow-y: auto; }
+.modal h3 { font-family: 'Syne', sans-serif; font-size: 20px; font-weight: 700; margin-bottom: 20px; }
+.modal-meta { display: flex; gap: 12px; margin-bottom: 24px; flex-wrap: wrap; }
+.meta-tag { padding: 6px 14px; background: var(--surface); border: 1px solid var(--border); border-radius: 99px; font-size: 13px; }
+.qa-item { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 18px; margin-bottom: 14px; }
+.qa-question { font-size: 14px; font-weight: 600; margin-bottom: 10px; color: var(--accent); }
+.qa-answer { font-size: 13px; color: var(--muted); margin-bottom: 12px; line-height: 1.6; }
+.qa-score { display: flex; align-items: center; gap: 10px; }
+.score-pill { padding: 4px 12px; border-radius: 99px; font-size: 12px; font-weight: 600; }
+.modal-actions { display: flex; gap: 12px; margin-top: 24px; }
+.btn-secondary { flex: 1; padding: 12px; background: transparent; border: 1px solid var(--border); border-radius: 10px; color: var(--text); font-family: 'DM Sans', sans-serif; font-size: 14px; cursor: pointer; transition: all 0.2s; }
+.btn-download { flex: 1; padding: 12px; background: linear-gradient(135deg, var(--accent3), #06d6a0); border: none; border-radius: 10px; color: #0a0a0f; font-family: 'Syne', sans-serif; font-size: 14px; font-weight: 700; cursor: pointer; transition: all 0.2s; }
+.btn-download:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(67,233,123,0.3); }
+@media (max-width: 1100px) { .stats-grid { grid-template-columns: repeat(2, 1fr); } }
+@media (max-width: 900px) { .two-col { grid-template-columns: 1fr; } }
+@media (max-width: 768px) { .sidebar { display: none; } .main { margin-left: 0; padding: 24px 16px; } }
+</style>
+</head>
+<body>
+<aside class="sidebar">
+  <div class="sidebar-brand">
+    <div class="brand-icon">🎯</div>
+    <div class="brand-name">Interview<span>AI</span></div>
+  </div>
+  <a href="/dashboard" class="nav-link active"><span class="icon">🏠</span> Dashboard</a>
+  <a href="/interview" class="nav-link"><span class="icon">🎤</span> Start Interview</a>
+  <div class="sidebar-footer">
+    <div class="user-info">
+      <div class="user-avatar">{{ user.username[0].upper() }}</div>
+      <div>
+        <div class="user-name">{{ user.username }}</div>
+        <div class="user-role">{{ user.email }}</div>
+      </div>
+    </div>
+    <a href="/logout" class="logout-btn">← Sign out</a>
+  </div>
+</aside>
+<main class="main">
+  <div class="page-header">
+    <h1><span class="time-greeting" id="greeting">Good morning</span>, {{ user.username }} 👋</h1>
+    <p>Ready to ace your next interview? Let's practice!</p>
+  </div>
+  <div class="stats-grid">
+    <div class="stat-card">
+      <div class="stat-icon">🎤</div>
+      <div class="stat-value">{{ stats.total_sessions }}</div>
+      <div class="stat-label">Total Sessions</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon">⭐</div>
+      <div class="stat-value">{{ stats.avg_score }}<span style="font-size:16px;color:var(--muted)">%</span></div>
+      <div class="stat-label">Average Score</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon">🏆</div>
+      <div class="stat-value">{{ stats.best_score }}<span style="font-size:16px;color:var(--muted)">%</span></div>
+      <div class="stat-label">Best Score</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon">💬</div>
+      <div class="stat-value">{{ stats.total_questions }}</div>
+      <div class="stat-label">Questions Answered</div>
+    </div>
+  </div>
+  <div class="two-col">
+    <div class="start-card">
+      <div class="section-title">⚡ Quick Start</div>
+      <div class="num-label" style="margin-bottom:10px;">Select Job Role</div>
+      <div class="role-grid" id="roleGrid">
+        <button class="role-btn" onclick="selectRole(this,'Software Developer')">💻 Software Dev</button>
+        <button class="role-btn" onclick="selectRole(this,'Data Analyst')">📊 Data Analyst</button>
+        <button class="role-btn" onclick="selectRole(this,'Product Manager')">🗂️ Product Manager</button>
+        <button class="role-btn" onclick="selectRole(this,'UI/UX Designer')">🎨 UI/UX Designer</button>
+        <button class="role-btn" onclick="selectRole(this,'Machine Learning Engineer')" style="grid-column:1/-1">🤖 ML Engineer</button>
+      </div>
+      <div class="num-label">Difficulty</div>
+      <div class="diff-row">
+        <button class="diff-btn easy" onclick="selectDiff(this,'Easy')">🟢 Easy</button>
+        <button class="diff-btn medium" onclick="selectDiff(this,'Medium')">🟡 Medium</button>
+        <button class="diff-btn hard" onclick="selectDiff(this,'Hard')">🔴 Hard</button>
+      </div>
+      <div class="num-label">Questions</div>
+      <div class="num-row">
+        <button class="num-btn" onclick="selectNum(this,3)">3</button>
+        <button class="num-btn selected" onclick="selectNum(this,5)">5</button>
+        <button class="num-btn" onclick="selectNum(this,7)">7</button>
+        <button class="num-btn" onclick="selectNum(this,10)">10</button>
+      </div>
+      <button class="btn-start" onclick="startInterview()">Start Interview →</button>
+    </div>
+    <div class="history-card">
+      <div class="section-title">📋 Recent Sessions <span class="badge">{{ sessions|length }}</span></div>
+      <div class="history-list">
+        {% if sessions %}
+          {% for s in sessions %}
+          <div class="history-item" onclick="viewSession({{ s.id }})">
+            <div class="history-score {% if s.score >= 70 %}score-high{% elif s.score >= 50 %}score-mid{% else %}score-low{% endif %}">
+              {{ s.score|int }}
+            </div>
+            <div class="history-info">
+              <div class="history-role">{{ s.job_role }}</div>
+              <div class="history-meta">
+                {{ s.created_at.strftime('%b %d') }} &nbsp;·&nbsp;
+                {{ s.total_questions }} questions &nbsp;·&nbsp;
+                <span class="diff-tag diff-{{ s.difficulty.lower() }}">{{ s.difficulty }}</span>
+              </div>
+            </div>
+            <span style="color:var(--muted);font-size:18px;">›</span>
+          </div>
+          {% endfor %}
+        {% else %}
+          <div class="empty-state">
+            <div class="emoji">🎯</div>
+            <p>No sessions yet. Start your first interview above!</p>
+          </div>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+  <div class="tips-card">
+    <div class="section-title">💡 Interview Tips</div>
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;">
+      <div class="tip-item" style="border-bottom:none;">
+        <div class="tip-icon">🗣️</div>
+        <div class="tip-content"><h4>Use the STAR Method</h4><p>Situation, Task, Action, Result — structure your answers to tell a compelling story.</p></div>
+      </div>
+      <div class="tip-item" style="border-bottom:none;">
+        <div class="tip-icon">🧠</div>
+        <div class="tip-content"><h4>Think Out Loud</h4><p>Interviewers want to understand your reasoning process, not just the final answer.</p></div>
+      </div>
+      <div class="tip-item" style="border-bottom:none;">
+        <div class="tip-icon">📝</div>
+        <div class="tip-content"><h4>Prepare Examples</h4><p>Have 3–5 specific stories from your experience ready to adapt to any question.</p></div>
+      </div>
+    </div>
+  </div>
+</main>
+<div class="modal-overlay" id="sessionModal" onclick="if(event.target===this)closeModal()">
+  <div class="modal">
+    <h3>📋 Session Review</h3>
+    <div id="modalBody" style="color:var(--muted);text-align:center;padding:40px 0;">Loading...</div>
+  </div>
+</div>
+<script>
+const h = new Date().getHours();
+document.getElementById('greeting').textContent = h < 12 ? 'Good morning' : h < 17 ? 'Good afternoon' : 'Good evening';
+let selectedRole = '', selectedDiff = '', selectedNum = 5;
+function selectRole(el, role) { document.querySelectorAll('.role-btn').forEach(b => b.classList.remove('selected')); el.classList.add('selected'); selectedRole = role; }
+function selectDiff(el, diff) { document.querySelectorAll('.diff-btn').forEach(b => b.classList.remove('selected')); el.classList.add('selected'); selectedDiff = diff; }
+function selectNum(el, n) { document.querySelectorAll('.num-btn').forEach(b => b.classList.remove('selected')); el.classList.add('selected'); selectedNum = n; }
+function startInterview() {
+  if (!selectedRole) { alert('Please select a job role first!'); return; }
+  if (!selectedDiff) { alert('Please select a difficulty level!'); return; }
+  sessionStorage.setItem('role', selectedRole);
+  sessionStorage.setItem('diff', selectedDiff);
+  sessionStorage.setItem('num', selectedNum);
+  window.location.href = '/interview';
+}
+async function viewSession(id) {
+  document.getElementById('sessionModal').classList.add('open');
+  document.getElementById('modalBody').innerHTML = '<p style="text-align:center;padding:40px;color:var(--muted)">Loading...</p>';
+  try {
+    const res = await fetch(`/api/session_history/${id}`);
+    const data = await res.json();
+    let html = `<div class="modal-meta">
+      <span class="meta-tag">🎯 ${data.job_role}</span>
+      <span class="meta-tag">📅 ${data.date}</span>
+      <span class="meta-tag diff-tag diff-${data.difficulty.toLowerCase()}">${data.difficulty}</span>
+      <span class="meta-tag">⭐ Score: ${data.score}/100</span>
+    </div>`;
+    data.answers.forEach((a, i) => {
+      const sc = a.score;
+      const color = sc >= 70 ? 'var(--accent3)' : sc >= 50 ? 'var(--accent4)' : 'var(--accent2)';
+      html += `<div class="qa-item">
+        <div class="qa-question">Q${i+1}: ${a.question}</div>
+        <div class="qa-answer"><strong style="color:var(--text)">Your answer:</strong> ${a.answer || '<em>No answer given</em>'}</div>
+        <div class="qa-score"><span class="score-pill" style="background:${color}22;color:${color}">${sc}/100 · ${a.feedback.rating || ''}</span></div>
+        ${a.feedback.feedback ? `<div class="qa-answer" style="margin-top:10px;padding-top:10px;border-top:1px solid var(--border)"><strong style="color:var(--text)">Feedback:</strong> ${a.feedback.feedback}</div>` : ''}
+      </div>`;
+    });
+    html += `<div class="modal-actions">
+      <button class="btn-secondary" onclick="closeModal()">Close</button>
+      <button class="btn-download" onclick="window.open('/api/download_report/${id}','_blank')">⬇ Download Report</button>
+    </div>`;
+    document.getElementById('modalBody').innerHTML = html;
+  } catch(e) {
+    document.getElementById('modalBody').innerHTML = '<p style="color:var(--accent2)">Failed to load session.</p>';
+  }
+}
+function closeModal() { document.getElementById('sessionModal').classList.remove('open'); }
+</script>
+</body>
+</html>
